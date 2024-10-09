@@ -10,11 +10,17 @@ import numbers
 files = [
     ("ENA_ASSEMBLY", "ena_assembly_file"),
     ("ENA_BIOPROJECT", "ena_bioproject_file"),
-    ("ENA_BIOSAMPLE", "ena_biosample_file"),
+    ("ENA_BIOSAMPLE", "ena_biosample_wgs_file"),
+    ("ENA_BIOSAMPLE_HIC", "ena_biosample_hic_file"),
+    ("ENA_BIOSAMPLE_RNA", "ena_biosample_rna_file"),
     ("ENA_TAXONOMY", "ena_taxonomy_file"),
     ("NCBI_ASSEMBLY", "ncbi_assembly_file"),
     ("NCBI_TAXONOMY", "ncbi_taxonomy_file"),
     ("GOAT_ASSEMBLY", "goat_assembly_file"),
+    ("COPO_BIOSAMPLE", "copo_biosample_wgs_file"),
+    ("COPO_BIOSAMPLE_HIC", "copo_biosample_hic_file"),
+    ("COPO_BIOSAMPLE_RNA", "copo_biosample_rna_file"),
+    ("GBIF_TAXONOMY", "gbif_taxonomy_file"),
 ]
 
 
@@ -25,11 +31,17 @@ def parse_args(args=None):
     parser = argparse.ArgumentParser(description=Description, epilog=Epilog)
     parser.add_argument("--ena_assembly_file", help="Input parsed ENA assembly file.", required=False)
     parser.add_argument("--ena_bioproject_file", help="Input parsed ENA assembly file.", required=False)
-    parser.add_argument("--ena_biosample_file", help="Input parsed ENA assembly file.", required=False)
+    parser.add_argument("--ena_biosample_wgs_file", help="Input parsed ENA genomic biosample file.", required=False)
+    parser.add_argument("--ena_biosample_hic_file", help="Input parsed ENA HiC biosample file.", required=False)
+    parser.add_argument("--ena_biosample_rna_file", help="Input parsed ENA RNASeq biosample file.", required=False)
     parser.add_argument("--ena_taxonomy_file", help="Input parsed ENA assembly file.", required=False)
     parser.add_argument("--ncbi_assembly_file", help="Input parsed ENA assembly file.", required=False)
     parser.add_argument("--ncbi_taxonomy_file", help="Input parsed ENA assembly file.", required=False)
     parser.add_argument("--goat_assembly_file", help="Input parsed ENA assembly file.", required=False)
+    parser.add_argument("--copo_biosample_wgs_file", help="Input parsed COPO genomic biosample file.", required=False)
+    parser.add_argument("--copo_biosample_hic_file", help="Input parsed COPO HiC biosample file.", required=False)
+    parser.add_argument("--copo_biosample_rna_file", help="Input parsed COPO RNASeq biosample file.", required=False)
+    parser.add_argument("--gbif_taxonomy_file", help="Input parsed GBIF taxonomy file.", required=False)
     parser.add_argument("--out_consistent", help="Output file.", required=True)
     parser.add_argument("--out_inconsistent", help="Output file.", required=True)
     parser.add_argument("--version", action="version", version="%(prog)s 1.0")
@@ -72,6 +84,10 @@ def main(args=None):
     params_inconsistent = {}
 
     for file in files:
+        # check if file exists skip if not
+        if getattr(args, file[1]) is None:
+            continue
+
         (params, paramDict) = process_file(getattr(args, file[1]), params)
         param_sets[file[0]] = paramDict
 

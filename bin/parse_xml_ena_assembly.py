@@ -14,10 +14,11 @@ fetch = [
     ("NCBI_TAXID", ["ASSEMBLY", "TAXON", "TAXON_ID"]),
     ("COMMON_NAME", ["ASSEMBLY", "TAXON", "COMMON_NAME"]),
     ("GENUS_SPECIES", ["ASSEMBLY", "TAXON", "SCIENTIFIC_NAME"]),
-    ("BIOSAMPLE_ACCESSION", ["ASSEMBLY", "SAMPLE_REF", "IDENTIFIERS", "PRIMARY_ID"]),
+    ("PROJECT_BIOSAMPLE_ACCESSION", ["ASSEMBLY", "SAMPLE_REF", "IDENTIFIERS", "PRIMARY_ID"]),
     ("GENOME_LENGTH", ["ASSEMBLY", "ASSEMBLY_ATTRIBUTES"], ("tag", ".//*[TAG='total-length']//", "VALUE")),
     ("SCAFF_NUMBER", ["ASSEMBLY", "ASSEMBLY_ATTRIBUTES"], ("tag", ".//*[TAG='scaffold-count']//", "VALUE")),
     ("SCAFF_N50", ["ASSEMBLY", "ASSEMBLY_ATTRIBUTES"], ("tag", ".//*[TAG='n50']//", "VALUE")),
+    ("GAP_COUNT", ["ASSEMBLY", "ASSEMBLY_ATTRIBUTES"], ("tag", ".//*[TAG='spanned-gaps']//", "VALUE")),
     ("CHROMOSOME_NUMBER", ["ASSEMBLY", "ASSEMBLY_ATTRIBUTES"], ("tag", ".//*[TAG='replicon-count']//", "VALUE")),
     ("CONTIG_NUMBER", ["ASSEMBLY", "ASSEMBLY_ATTRIBUTES"], ("tag", ".//*[TAG='count-contig']//", "VALUE")),
     ("CONTIG_N50", ["ASSEMBLY", "ASSEMBLY_ATTRIBUTES"], ("tag", ".//*[TAG='contig-n50']//", "VALUE")),
@@ -103,8 +104,11 @@ def parse_xml(file_in, file_out):
                                 if child.find("TAG").text == "count-non-chromosome-replicon":
                                     non_chrs = child.find("VALUE").text
                                     param = str(int(param) - int(non_chrs))
-                        if f[0] == "GENOME_LENGTH" or f[0] == "SCAFF_N50" or f[0] == "CONTIG_N50":
-                            param = str(round((int(param) * 1e-6), 1))  # convert to Mbp
+                        if f[0] == "GENOME_LENGTH":
+                            param = str("%.2f" % (int(param) * 1e-6))  # convert to Mbp, 2 decimal place
+
+                        if f[0] == "SCAFF_N50" or f[0] == "CONTIG_N50":
+                            param = str("%.1f" % (int(param) * 1e-6))  # convert to Mbp, 1 decimal place
 
                 else:
                     try:

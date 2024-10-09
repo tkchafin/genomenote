@@ -50,7 +50,7 @@ def build_param_list(param_file):
                 json_chrs = json.loads(value)
                 value = json_chrs
 
-            if key == "TISSUE_TYPE":
+            if key == "ORGANISM_PART":
                 value = value.lower()
 
             if key == "IDENTIFIER" or key == "IDENTIFIER_INSTITUTE":
@@ -63,6 +63,16 @@ def build_param_list(param_file):
                 value = value.replace("At", "at")
                 value = value.replace("Of", "of")
                 value = value.replace("The", "the")
+
+            # Set URLS for BTK
+            if key == "ASSEMBLY_ACCESSION":
+                # Base BTK URL
+                btk_url = "https://blobtoolkit.genomehubs.org/view/GCA/dataset/GCA"
+                btk_url = btk_url.replace("GCA", value)
+
+                mydict["BTK_SNAIL_URL"] = btk_url + "/snail"
+                mydict["BTK_BLOB_URL"] = btk_url + "/blob"
+                mydict["BTK_CUMULATIVE_URL"] = btk_url + "/cumulative"
 
             mydict[key] = value
 
@@ -83,6 +93,12 @@ def build_param_list(param_file):
                     seen.add(c)
 
         mydict["AUTHORS"] = ", ".join(authors)
+
+        if mydict["ASSEMBLY_ACCESSION"] and mydict["GENUS_SPECIES"]:
+            btk_busco_url = "https://blobtoolkit.genomehubs.org/view/SPECIES/dataset/GCA/busco"
+            btk_busco_url = btk_busco_url.replace("GCA", mydict["ASSEMBLY_ACCESSION"])
+            btk_busco_url = btk_busco_url.replace("SPECIES", mydict["GENUS_SPECIES"])
+            mydict["BTK_BUSCO_URL"] = btk_busco_url
 
         return mydict
 

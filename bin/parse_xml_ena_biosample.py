@@ -37,13 +37,13 @@ fetch = [
     ("LONGITUDE", ["SAMPLE", "SAMPLE_ATTRIBUTES"], ("tag", ".//*[TAG='geographic location (longitude)']//", "VALUE")),
     ("HABITAT", ["SAMPLE", "SAMPLE_ATTRIBUTES"], ("tag", ".//*[TAG='habitat']//", "VALUE")),
     ("BIOSAMPLE_ACCESSION", ["SAMPLE"], ("attrib", "accession")),
-    ("TISSUE_TYPE", ["SAMPLE", "SAMPLE_ATTRIBUTES"], ("tag", ".//*[TAG='organism part']//", "VALUE")),
+    ("ORGANISM_PART", ["SAMPLE", "SAMPLE_ATTRIBUTES"], ("tag", ".//*[TAG='organism part']//", "VALUE")),
     ("TOLID", ["SAMPLE", "SAMPLE_ATTRIBUTES"], ("tag", ".//*[TAG='tolid']//", "VALUE")),
 ]
 
 
 def parse_args(args=None):
-    Description = "Parse contents of an ENA SAMPLE report and pul out meta data required by a genome note."
+    Description = "Parse contents of an ENA SAMPLE report and pull out meta data required by a genome note."
     Epilog = "Example usage: python parse_xml_ena_sample.py <FILE_IN> <FILE_OUT>"
 
     parser = argparse.ArgumentParser(description=Description, epilog=Epilog)
@@ -77,6 +77,13 @@ def parse_xml(file_in, file_out):
     root = tree.getroot()
     param_list = []
 
+    # Extract biosample type from FILE_OUT
+    biosample_type = None
+    if "HIC" in file_out.upper():
+        biosample_type = "HIC"
+    elif "RNA" in file_out.upper():
+        biosample_type = "RNA"
+
     for f in fetch:
         param = None
         r = root
@@ -101,8 +108,7 @@ def parse_xml(file_in, file_out):
                             param = r.attrib.get(f[2][1])
                         except ValueError:
                             param = None
-
-                    ## Count child elements with specfic tag
+                    ## Count child elements with specific tag
                     if f[2][0] == "count":
                         if r is not None:
                             param = str(len(r.findall(f[2][1]))) if len(r.findall(f[2][1])) != 0 else None
@@ -123,14 +129,38 @@ def parse_xml(file_in, file_out):
                         param = None
 
                 if param is not None:
+                    # Preprocess some values to standardise their format
+                    if f[0] == "GAL":
+                        param = param.title()
+
+                    # pre-process collection location
+                    if f[0] == "COLLECTION_LOCATION":
+                        location_list = param.split(" | ")
+                        location_list.reverse()
+
+                        # remove United Kingdom from location
+                        if "UNITED KINGDOM" in location_list:
+                            location_list.remove("UNITED KINGDOM")
+                        elif "United Kingdom" in location_list:
+                            location_list.remove("United Kingdom")
+
+                        param = ", ".join(location_list).title()
+
+                    # organism part should be in lower case
+                    if f[0] == "ORGANISM_PART":
+                        param = param.lower()
+
                     # Convert ints and floats to str to allow for params with punctuation to be quoted
                     if isinstance(param, numbers.Number):
                         param = str(param)
 
                     if any(p in string.punctuation for p in param):
                         param = '"' + param + '"'
-
-                    param_list.append([f[0], param])
+                    # Prefix parameter name if biosample type is HiC or RNA
+                    param_name = f[0]
+                    if biosample_type in ["HIC", "RNA"]:
+                        param_name = f"{biosample_type}_{param_name}"
+                    param_list.append([param_name, param])
 
     if len(param_list) > 0:
         out_dir = os.path.dirname(file_out)

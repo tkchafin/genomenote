@@ -36,21 +36,17 @@
                     "type": "string",
                     "description": "The Genbank assembly accession for the assembly, for example: GCA_922984935.2."
                 },
-                "species": {
+                "biosample_wgs": {
                     "type": "string",
-                    "description": "The species name for the assembly with spaces replaced with '_', for example: Epithemia_sp._CRS-2021b."
+                    "description": "The biosample accesion(s) linked to the WGS samples in the experiment, for example: SAMEA7520803."
                 },
-                "taxon_id": {
+                "biosample_rna": {
                     "type": "string",
-                    "description": "The NCBI taxonomy ID corresponding to the GCA assembly accession, for example: 9662."
+                    "description": "The biosample accesion(s) linked to the RNA samples in the experiment, for example: SAMEA7521081."
                 },
-                "bioproject": {
+                "biosample_hic": {
                     "type": "string",
-                    "description": "The bioproject accesion linked to the genome assembly, for example: PRJEB49353."
-                },
-                "biosample": {
-                    "type": "string",
-                    "description": "The biosample accesion(s) linked to the samples in the experiment, for example: SAMEA7524400."
+                    "description": "The biosample accesion(s) linked to the Hi-C samples in the experiment, for example: SAMEA7520846."
                 },
                 "outdir": {
                     "type": "string",
@@ -70,6 +66,14 @@
                     "type": "string",
                     "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified.",
                     "fa_icon": "fas fa-file-signature"
+                },
+                "cool_order": {
+                    "type": "string",
+                    "format": "file-path",
+                    "mimetype": "text/csv",
+                    "description": "Path to a file that contains the sequence names in the order you want to represent them on the contact-map.",
+                    "help_text": "If not specified, the pipeline will use the sequences in the same order they are listed by the NCI, which follows the karyotype.",
+                    "fa_icon": "fas fa-file-lines"
                 },
                 "write_to_portal": {
                     "type": "boolean",
