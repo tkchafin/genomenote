@@ -9,6 +9,7 @@ process UPLOAD_HIGLASS_DATA {
     tuple val(meta2), path(genome)
     val(higlass_data_project_dir)
     path(upload_dir)
+    path(higlass_kubeconfig)
 
     output:
     env map_uuid, emit: map_uuid
@@ -35,7 +36,7 @@ process UPLOAD_HIGLASS_DATA {
 
     """
     # Configure kubectl access to the namespace
-    export KUBECONFIG=$params.higlass_kubeconfig
+    export KUBECONFIG=$higlass_kubeconfig
     kubectl config get-contexts
     kubectl config set-context --current --namespace=$params.higlass_namespace
 
